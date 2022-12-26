@@ -7,11 +7,11 @@ class Recommendation:
         self.user_id = user_id
         # 總和權重
         self.weight_all_ingredients = {}
-        # DB連接
-        db = DB.db
-        self.cursor = db.cursor()
+        # DB連接       
+        self.db = DB.db.cursor()
+        # self.cursor = db.cursor()
         # 取得使用者瀏覽、食用、收藏紀錄
-        self.user = Get_User_Foods(self.user_id, self.cursor)
+        self.user = Get_User_Foods(self.user_id, self.db)
         
     
     # 列出推薦清單
@@ -46,8 +46,8 @@ class Recommendation:
         
 
         sql = "SELECT DISTINCT name FROM `restaurant_dish_ingredients` "
-        self.cursor.execute(sql)
-        result = self.cursor.fetchall()
+        self.db.execute(sql)
+        result = self.db.fetchall()
 
         for i in result:
             self.weight_all_ingredients.update({i[0]: 0})
@@ -83,8 +83,8 @@ class Recommendation:
     # 預測喜好飲食
     def recommend(self):
         sql = "SELECT `id` FROM `restaurant_dish`"
-        self.cursor.execute(sql)
-        result = self.cursor.fetchall()
+        self.db.execute(sql)
+        result = self.db.fetchall()
 
         # 所有飲食
         all_dishs_id = []
@@ -96,8 +96,8 @@ class Recommendation:
 
         for dish_id in all_dishs_id:
             sql = "SELECT name FROM `restaurant_dish_ingredients` WHERE `restaurant_dish_ingredients`.`restaurant_dish_id` = '{}'".format(str(dish_id[0]))
-            self.cursor.execute(sql)
-            result = self.cursor.fetchall()
+            self.db.execute(sql)
+            result = self.db.fetchall()
 
             # 喜好分數
             score = 0

@@ -1,12 +1,13 @@
 class Get_User_Foods:
-    def __init__(self, user_id, cursor):
+    def __init__(self, user_id, db):
         # 使用者id
         self.user_id = user_id
         self.browse_foods = []
         self.record_foods = []
         self.collect_foods = []
 
-        self.cursor = cursor
+        self.db = db
+        
 
     # 取得瀏覽紀錄且沒有食用紀錄
     def get_browse_not_record(self):
@@ -14,8 +15,8 @@ class Get_User_Foods:
                 WHERE NOT EXISTS( \
                     SELECT restaurant_dish_id FROM `user_record_food` WHERE Browse.restaurant_dish_id = restaurant_dish_id) \
                 AND user_id = {}'.format(str(self.user_id))
-        self.cursor.execute(sql)
-        result = self.cursor.fetchall()
+        self.db.execute(sql)
+        result = self.db.fetchall()
 
         # 對應食材
         self.ingredient("Browse", result)        
@@ -23,8 +24,8 @@ class Get_User_Foods:
     # 取得食用紀錄
     def get_record_food(self):
         sql = "SELECT restaurant_dish_id FROM `user_record_food` WHERE EXISTS(SELECT user_id FROM `user_record` WHERE user_id = {})".format(str(self.user_id))
-        self.cursor.execute(sql)
-        result = self.cursor.fetchall()
+        self.db.execute(sql)
+        result = self.db.fetchall()
         
         # 對應食材
         self.ingredient("Record", result)
@@ -32,8 +33,8 @@ class Get_User_Foods:
     # 取得收藏紀錄
     def get_collect_food(self):
         sql = "SELECT restaurant_dish_id FROM `user_collect` WHERE user_id = {}".format(str(self.user_id))
-        self.cursor.execute(sql)
-        result = self.cursor.fetchall()
+        self.db.execute(sql)
+        result = self.db.fetchall()
         
         # 對應食材
         self.ingredient("Collect", result)
@@ -44,8 +45,8 @@ class Get_User_Foods:
 
         for dish_id in dish_ids:
             sql = 'SELECT name FROM `restaurant_dish_ingredients` WHERE restaurant_dish_id = {}'.format(dish_id[0])
-            self.cursor.execute(sql)
-            ingredients = self.cursor.fetchall()
+            self.db.execute(sql)
+            ingredients = self.db.fetchall()
 
             # 找成分
             for item in ingredients:
